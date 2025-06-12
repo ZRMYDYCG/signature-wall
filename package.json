@@ -15,7 +15,8 @@
     "eslint:config": "npx @eslint/config-inspector@latest",
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.9",
@@ -24,12 +25,19 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.14.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "axios": "^1.9.0",
     "eslint": "^9.28.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vue-tsc": "^2.2.8"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

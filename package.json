@@ -3,7 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "pnpm": ">=8.0.0",
+    "node": ">=16.0.0"
+  },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "cd cli && pnpm link --global",
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
@@ -16,6 +22,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
+    "axios": "^1.9.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vue-tsc": "^2.2.8"

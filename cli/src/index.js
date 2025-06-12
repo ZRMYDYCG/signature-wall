@@ -3,7 +3,7 @@ import { installCommand } from './commands/install.js'
 import { uninstallCommand } from './commands/uninstall.js'
 
 // 初始化所有命令
-const initializeCommands = () => {
+function initializeCommands() {
   // 注册 install 命令组
   program.command('install').description('安装项目依赖').action(installCommand)
   // 注册 uninstall 命令组

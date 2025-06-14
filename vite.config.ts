@@ -2,12 +2,19 @@ import * as path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import viteCompression from 'vite-plugin-compression'
 
 // 配置文档: https://vite.dev/config/
 export default defineConfig({
   plugins: [
     tailwindcss(),
     vue(),
+    // 生产环境启用gzip压缩
+    viteCompression({
+      algorithm: 'gzip',
+      threshold: 10240, // 大于10KB的文件才压缩
+      deleteOriginFile: false, // 不删除原文件
+    }),
   ] as any,
   resolve: {
     alias: {

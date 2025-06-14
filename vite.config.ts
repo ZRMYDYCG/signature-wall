@@ -1,6 +1,7 @@
 import * as path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
+import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 
@@ -14,6 +15,12 @@ export default defineConfig({
       algorithm: 'gzip',
       threshold: 10240, // 大于10KB的文件才压缩
       deleteOriginFile: false, // 不删除原文件
+    }),
+    // 构建分析
+    visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
     }),
   ] as any,
   resolve: {

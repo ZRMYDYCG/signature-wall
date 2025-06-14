@@ -4,12 +4,15 @@ import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
+import { buildInfoPlugin, hmrGuardPlugin } from './vite/custom-plugin/index'
 
 // 配置文档: https://vite.dev/config/
 export default defineConfig({
   plugins: [
     tailwindcss(),
     vue(),
+    buildInfoPlugin(),
+    hmrGuardPlugin(),
     // 生产环境启用gzip压缩
     viteCompression({
       algorithm: 'gzip',

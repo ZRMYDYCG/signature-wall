@@ -1,7 +1,7 @@
-import type { SearchResponse } from '../types/index'
+import type { BaseResponse } from '../types/index'
 import { supabase } from '../../../supabase/index'
 
-export async function basicSearch(): Promise<SearchResponse<any[]>> {
+export async function basicSearch(): Promise<BaseResponse<any[]>> {
   const { data, error, count } = await supabase
     .from('book')
     .select('*', { count: 'exact' })

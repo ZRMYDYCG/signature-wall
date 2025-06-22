@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Basic from './components/common/basic.vue'
+import Filter from './components/common/filter.vue'
 import Pagenation from './components/common/pagination.vue'
 </script>
 
@@ -9,5 +10,7 @@ import Pagenation from './components/common/pagination.vue'
     <Basic />
     <!-- 分页查询 -->
     <Pagenation />
+    <!-- 过滤查询 -->
+    <Filter />
   </div>
 </template>

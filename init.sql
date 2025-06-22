@@ -1,75 +1,112 @@
--- 创建留言表 (posts)
-CREATE TABLE posts (
-  id SERIAL PRIMARY KEY,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  views INTEGER DEFAULT 0,
-  ip_address VARCHAR(45), -- 存储IP地址用于简单去重
-  user_agent TEXT -- 存储用户代理信息
+-- 主留言表
+CREATE TABLE wall_messages (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- 自增主键
+    content TEXT NOT NULL,                              -- 留言内容
+    signature VARCHAR(100) DEFAULT 'Anonymous',         -- 用户签名（默认匿名）
+    avatar_url VARCHAR(255) DEFAULT '',                 -- 头像URL（可空）
+    view_count INT NOT NULL DEFAULT 0,                  -- 浏览量统计
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()       -- 创建时间
 );
 
--- 创建回复表 (comments)，支持嵌套回复
-CREATE TABLE comments (
-  id SERIAL PRIMARY KEY,
-  post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  ip_address VARCHAR(45),
-  user_agent TEXT,
-  -- 添加索引提升查询性能
-  CONSTRAINT fk_post
-    FOREIGN KEY(post_id)
-    REFERENCES posts(id)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_parent_comment
-    FOREIGN KEY(parent_id)
-    REFERENCES comments(id)
-    ON DELETE CASCADE
+-- 回复表（支持无限嵌套）
+CREATE TABLE replies (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- 自增主键
+    message_id BIGINT NOT NULL REFERENCES wall_messages(id) ON DELETE CASCADE,  -- 关联主留言
+    parent_reply_id BIGINT REFERENCES replies(id) ON DELETE CASCADE,  -- 父级回复ID（实现嵌套）
+    content TEXT NOT NULL,                              -- 回复内容
+    signature VARCHAR(100) DEFAULT 'Anonymous',         -- 回复者签名
+    avatar_url VARCHAR(255) DEFAULT '',                 -- 回复者头像
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()       -- 创建时间
 );
 
--- 为常用查询添加索引
-CREATE INDEX idx_comments_post_id ON comments(post_id);
-CREATE INDEX idx_comments_parent_id ON comments(parent_id);
-CREATE INDEX idx_posts_created_at ON posts(created_at);
+-- 索引优化（提升查询性能）
+CREATE INDEX idx_wall_messages_created ON wall_messages(created_at DESC);
+CREATE INDEX idx_replies_message ON replies(message_id);
+CREATE INDEX idx_replies_parent ON replies(parent_reply_id);
 
--- 创建浏览量更新函数
-CREATE OR REPLACE FUNCTION increment_post_views(post_id INTEGER)
-RETURNS VOID AS $$
-BEGIN
-  UPDATE posts
-  SET views = views + 1
-  WHERE id = post_id;
-END;
-$$ LANGUAGE plpgsql;
-
--- 生成100条模拟留言数据
-INSERT INTO posts (content, created_at, views, ip_address, user_agent)
+-- 插入100条主留言
+INSERT INTO wall_messages (content, signature, avatar_url)
 SELECT 
-  '这是第 ' || i || ' 条留言内容，分享我的一些想法和感受。',
-  NOW() - (random() * 30 || ' days')::interval, -- 随机30天内的时间
-  floor(random() * 100)::int, -- 0-99的随机浏览量
-  '192.168.' || floor(random()*255) || '.' || floor(random()*255), -- 随机IP
-  CASE floor(random()*4)
-    WHEN 0 THEN 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/98.0.4758.102'
-    WHEN 1 THEN 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_2_1) Safari/15.3'
-    WHEN 2 THEN 'Mozilla/5.0 (Linux; Android 12) Firefox/97.0'
-    ELSE 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) Mobile/15E148'
+  '留言内容-' || generate_series(1,100),
+  CASE WHEN random() < 0.3 THEN 'Anonymous' 
+       ELSE '用户-' || (floor(random()*10000))::TEXT 
+  END,
+  CASE WHEN random() < 0.4 THEN '' 
+       ELSE 'https://avatar.site/user/' || (floor(random()*1000))::TEXT || '.png' 
   END
-FROM generate_series(1, 100) AS i;
+FROM generate_series(1,100);
 
--- 生成100条模拟回复数据（包含嵌套回复）
-INSERT INTO comments (post_id, parent_id, content, created_at, ip_address, user_agent)
-SELECT 
-  floor(random()*100) + 1, -- 随机关联到1-100的留言
-  CASE WHEN random() < 0.3 THEN floor(random()*i) + 1 ELSE NULL END, -- 30%概率有父回复
-  '这是对留言的第 ' || i || ' 条回复，很赞同你的观点！',
-  NOW() - (random() * 30 || ' days')::interval, -- 随机30天内的时间
-  '10.' || floor(random()*255) || '.' || floor(random()*255) || '.' || floor(random()*255), -- 随机IP
-  CASE floor(random()*4)
-    WHEN 0 THEN 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/98.0.4758.102'
-    WHEN 1 THEN 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_2_1) Safari/15.3'
-    WHEN 2 THEN 'Mozilla/5.0 (Linux; Android 12) Firefox/97.0'
-    ELSE 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_3 like Mac OS X) Mobile/15E148'
+-- 插入随机回复（约300-500条）
+WITH messages AS (
+  SELECT id FROM wall_messages ORDER BY random() LIMIT 100
+)
+INSERT INTO replies (message_id, parent_reply_id, content, signature, avatar_url)
+SELECT
+  m.id,
+  NULL,  -- 顶级回复
+  '回复主留言-' || (row_number() OVER ()),
+  CASE WHEN random() < 0.25 THEN 'Anonymous' 
+       ELSE '回复者-' || (floor(random()*500))::TEXT 
+  END,
+  CASE WHEN random() < 0.3 THEN '' 
+       ELSE 'https://avatar.site/reply/' || (floor(random()*500))::TEXT || '.png' 
   END
-FROM generate_series(1, 100) AS i;
+FROM messages m
+CROSS JOIN generate_series(1, (3 + random()*2)::INT);  -- 每条留言3-5条顶级回复
+
+-- 插入二级嵌套回复（约600-1000条）
+WITH top_replies AS (
+  SELECT r.id, r.message_id 
+  FROM replies r 
+  WHERE parent_reply_id IS NULL
+  ORDER BY random() LIMIT 300
+)
+INSERT INTO replies (message_id, parent_reply_id, content, signature, avatar_url)
+SELECT
+  tr.message_id,
+  tr.id,  -- 父回复ID
+  '嵌套回复-' || (row_number() OVER ()),
+  CASE WHEN random() < 0.2 THEN 'Anonymous' 
+       ELSE '用户-' || (floor(random()*800))::TEXT 
+  END,
+  CASE WHEN random() < 0.35 THEN '' 
+       ELSE 'https://avatar.site/nested/' || (floor(random()*700))::TEXT || '.png' 
+  END
+FROM top_replies tr
+CROSS JOIN generate_series(1, (1 + random()*2)::INT);  -- 每条回复1-3条嵌套回复
+
+-- 插入三级嵌套回复（约300-500条）
+WITH second_level AS (
+  SELECT r.id, r.message_id 
+  FROM replies r 
+  WHERE parent_reply_id IS NOT NULL  -- 只选择二级回复
+  ORDER BY random() LIMIT 600
+)
+INSERT INTO replies (message_id, parent_reply_id, content, signature, avatar_url)
+SELECT
+  sl.message_id,
+  sl.id,  -- 父回复ID
+  '深度回复-' || (row_number() OVER ()),
+  CASE WHEN random() < 0.15 THEN 'Anonymous' 
+       ELSE '用户-' || (floor(random()*1000))::TEXT 
+  END,
+  CASE WHEN random() < 0.4 THEN '' 
+       ELSE 'https://avatar.site/deep/' || (floor(random()*900))::TEXT || '.png' 
+  END
+FROM second_level sl
+CROSS JOIN generate_series(1, (0.5 + random()*1.5)::INT);  -- 50%概率有1-2条回复
+
+-- 随机更新浏览量 (0-500次)
+UPDATE wall_messages 
+SET view_count = view_count + (random()*100)::INT
+WHERE random() < 0.7;  -- 70%的留言有浏览量
+
+-- 设置热门留言（前5%有高浏览量）
+UPDATE wall_messages 
+SET view_count = view_count + 500 + (random()*1000)::INT
+WHERE id IN (
+  SELECT id 
+  FROM wall_messages 
+  ORDER BY random() 
+  LIMIT (SELECT count(*)*0.05 FROM wall_messages)
+);

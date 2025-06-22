@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Basic from './components/common/basic.vue'
 import Filter from './components/common/filter.vue'
+import oneToMore from './components/common/oneToMore.vue'
 import Pagenation from './components/common/pagination.vue'
 </script>
 
@@ -12,5 +13,7 @@ import Pagenation from './components/common/pagination.vue'
     <Pagenation />
     <!-- 过滤查询 -->
     <Filter />
+    <!-- 一对多查询 -->
+    <oneToMore />
   </div>
 </template>

@@ -4,7 +4,10 @@ import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { buildInfoPlugin, hmrGuardPlugin } from './vite/custom-plugin/index'
+
+const root = path.resolve(__dirname)
 
 // 配置文档: https://vite.dev/config/
 export default defineConfig({
@@ -13,6 +16,14 @@ export default defineConfig({
     vue(),
     buildInfoPlugin(),
     hmrGuardPlugin(),
+    createSvgIconsPlugin({
+      // 指定需要缓存的图标文件夹
+      iconDirs: [
+        path.join(root, 'src/assets/svg/base'),
+      ],
+      // 指定symbolId格式
+      symbolId: 'icon-[dir]-[name]',
+    }),
     // 生产环境启用gzip压缩
     viteCompression({
       algorithm: 'gzip',

@@ -52,6 +52,7 @@ function handleConfirm() {
   </div>
   <!-- 占位 -->
   <div class="h-16" />
+  <!-- 发布想法弹窗 -->
   <Dialog v-model:visible="showDialog" title="发布一条想法" @confirm="handleConfirm">
     <div class="relative h-[80%]">
       <div
@@ -67,6 +68,7 @@ function handleConfirm() {
       </div>
     </div>
   </Dialog>
+  <!-- 用户自定义设置弹窗 -->
 </template>
 
 <style scoped>

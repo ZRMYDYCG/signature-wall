@@ -3,8 +3,8 @@ import SignatureCard from '@/components/common/SignatureCard.vue'
 </script>
 
 <template>
-  <SignatureCard />
-  <SignatureCard />
+  <SignatureCard mood="calm" />
+  <SignatureCard mood="angry" />
   <SignatureCard />
   <SignatureCard />
   <SignatureCard />

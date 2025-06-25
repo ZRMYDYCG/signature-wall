@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Avatar from '@/components/ui/Avatar.vue'
 import Button from '@/components/ui/Button.vue'
 import SvgIcon from '@/components/ui/SvgIcon.vue'
 import Text from '@/components/ui/Text.vue'
@@ -31,7 +32,7 @@ import { globalConfig } from '@/config'
 
       <!-- S Avatar -->
       <div class="avatar">
-        <div />
+        <Avatar />
       </div>
       <!-- Avatar E -->
     </div>

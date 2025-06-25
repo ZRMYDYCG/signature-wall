@@ -37,6 +37,8 @@ import { globalConfig } from '@/config'
     </div>
     <!-- Action E -->
   </div>
+  <!-- 占位 -->
+  <div class="h-16" />
 </template>
 
 <style scoped>

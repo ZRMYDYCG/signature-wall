@@ -1,7 +1,16 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SignatureCard from '@/components/common/SignatureCard.vue'
+</script>
 
 <template>
   <div>
-    Home
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
+    <SignatureCard />
   </div>
 </template>

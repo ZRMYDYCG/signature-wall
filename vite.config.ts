@@ -20,6 +20,7 @@ export default defineConfig({
       // 指定需要缓存的图标文件夹
       iconDirs: [
         path.join(root, 'src/assets/svg/base'),
+        path.join(root, 'src/assets/svg/common'),
       ],
       // 指定symbolId格式
       symbolId: 'icon-[dir]-[name]',

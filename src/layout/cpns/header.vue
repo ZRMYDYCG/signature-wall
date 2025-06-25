@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from '@/components/ui/Button.vue'
 import SvgIcon from '@/components/ui/SvgIcon.vue'
 import Text from '@/components/ui/Text.vue'
 import { globalConfig } from '@/config'
@@ -25,7 +26,7 @@ import { globalConfig } from '@/config'
     <!-- S Action -->
     <div class="right-actions flex items-center gap-[15px]">
       <div class="actions flex gap-[15px]">
-        <button>发布</button>
+        <Button>发布</Button>
       </div>
 
       <!-- S Avatar -->

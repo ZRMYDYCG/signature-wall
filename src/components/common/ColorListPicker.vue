@@ -1,4 +1,4 @@
-<template setup lang="ts">
+<script setup lang="ts">
 import { defineProps, ref } from 'vue'
 
 export interface ColorListPickerProps {
@@ -15,13 +15,13 @@ function handleColorSelect(color: string) {
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-2">
     <div class="flex flex-wrap gap-2">
       <div
         v-for="(color, index) in colors"
         :key="index"
         class="w-9 h-9 rounded cursor-pointer transition-transform duration-200 hover:scale-105"
-        :style="{ backgroundColor: color }"
+        :style="{ background: color }"
         :class="{ 'ring-2 ring-black ring-offset-2': selectedColor === color }"
         :title="color"
         @click="handleColorSelect(color)"

@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import ColorListPicker from '@/components/common/ColorListPicker.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Button from '@/components/ui/Button.vue'
 import Dialog from '@/components/ui/Dialog.vue'
 import SvgIcon from '@/components/ui/SvgIcon.vue'
 import Text from '@/components/ui/Text.vue'
+import { userAvatar } from '@/config'
 
 import { globalConfig } from '@/config'
 
-const showDialog = ref(false)
+const showIdeaDialog = ref(false)
+const showSettingDialog = ref(false)
 const isEditing = ref(false)
 const content = ref('')
 
@@ -37,13 +40,13 @@ function handleConfirm() {
     <!-- S Action -->
     <div class="right-actions flex items-center gap-[15px]">
       <div class="actions flex gap-[15px]">
-        <Button @click="showDialog = true">
+        <Button @click="showIdeaDialog = true">
           发布
         </Button>
       </div>
 
       <!-- S Avatar -->
-      <div class="avatar">
+      <div class="avatar" @click="showSettingDialog = true">
         <Avatar />
       </div>
       <!-- Avatar E -->
@@ -53,7 +56,7 @@ function handleConfirm() {
   <!-- 占位 -->
   <div class="h-16" />
   <!-- 发布想法弹窗 -->
-  <Dialog v-model:visible="showDialog" title="发布一条想法" @confirm="handleConfirm">
+  <Dialog v-model:visible="showIdeaDialog" title="发布一条想法" @confirm="handleConfirm">
     <div class="relative h-[80%]">
       <div
         contenteditable="true"
@@ -69,6 +72,31 @@ function handleConfirm() {
     </div>
   </Dialog>
   <!-- 用户自定义设置弹窗 -->
+  <Dialog v-model:visible="showSettingDialog" title="用户自定义设置">
+    <div class="flex flex-col gap-4  h-[90%] overflow-y-auto">
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center space-x-2 py-2">
+          <div class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-400 to-red-600" />
+          <div>头像设置</div>
+        </div>
+        <ColorListPicker :colors="userAvatar" />
+        <div class="flex items-center space-x-2 py-2">
+          <div class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-400 to-red-600" />
+          <div>昵称设置</div>
+        </div>
+        <input
+          type="text"
+          placeholder="请输入昵称"
+          class="w-full px-4 py-2 border rounded-md outline-none"
+        >
+      </div>
+    </div>
+    <template #footer>
+      <Button>
+        保存
+      </Button>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped>
